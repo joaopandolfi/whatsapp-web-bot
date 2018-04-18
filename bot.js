@@ -46,6 +46,19 @@
 		return Math.floor(Math.random() * (high - low + 1) + low);
 	}
 	
+	function search_message(query_text){
+	    me = document.getElementsByClassName("vW7d1");
+	    tam = me.length;
+	    msgs = [];
+	    for(i =0; i< tam;i++){
+		if(me[i].textContent.search(query_text) >= 0){
+		    //console.log(me[i].textContent);
+		    msgs.push(me[i].textContent);
+		}   
+	    }
+	    return msgs;
+	}
+	
 	function getElement(id, parent){
 		if (!elementConfig[id]){
 			return false;
