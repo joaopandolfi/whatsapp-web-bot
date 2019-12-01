@@ -78,21 +78,21 @@ Digite o número do sabor
 
     pedido_g_2: { msg:`
 Pizza *{tipopedido}*, 🍕🍕 *2* sabores
-Digite o primeiro sabor
+Digite o número do primeiro sabor
 `,},
 
     pedido_g_2_2: { msg:`
 Pizza *{tipopedido}*, 🍕🍕 *2* sabores, {sabor1} 
-Digite o segundo sabor`,
+Digite o número do segundo sabor`,
 },
 
     confirma_pedido: { msg:`
-Para confirmar o pedido:
+Seu pedido:
 {pedido}
 
-Digite *1*
+Para ✅*confirmar*, digite *1*
 
-Para cancelar, digite *2*
+Para ❌*cancelar*, digite *2*
 `,},
 
 

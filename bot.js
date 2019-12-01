@@ -136,6 +136,7 @@
 			}
 		}
 
+		console.log(sendText)
 		return sendText
 	}
 
@@ -364,30 +365,42 @@
 			return goAgain(() => { start(chats, cnt + 1) }, 0.1);
 		}
 
-		// what to answer back?
-		let sendText
+		if (!processLastMsgOnChat){
+			return selectChat(chat, () => {
+				goAgain(start, 0.1);
+			})
+		} 
+	
+			// what to answer back?
+			let sendText
 
-		let currMsg =getTypeLastMsg() //lastMsg.toLowerCase()
-		console.log(__memory[title])
-		console.log(imSendLastMessage)
-		console.log(currMsg)
-		if(__memory[title] == undefined){
-			__memory[title] = Object.assign({},__memory["example"]);
-		}
-		
-		if(currMsg){
-			sendText = BOT(title,currMsg)
-		}
-		
-		// that's sad, there's not to send back...
-		if (!sendText) {
-			ignoreLastMsg[title] = lastMsg;
-			console.log(new Date(), 'new message ignored -> ', title, lastMsg);
-			return goAgain(() => { start(chats, cnt + 1) }, 0.1);
-		}
+			let currMsg =getTypeLastMsg() //lastMsg.toLowerCase()
+			console.log(__memory[title])
+			console.log(imSendLastMessage)
+			console.log(currMsg)
+			if(__memory[title] == undefined){
+				__memory[title] = Object.assign({},__memory["example"]);
+			}
 
-		console.log(new Date(), 'new message to process, uhull -> ', title, lastMsg);
+			if(currMsg){
+				sendText = BOT(title,currMsg)
+			}
 
+			// that's sad, there's not to send back...
+			if (!sendText) {
+				ignoreLastMsg[title] = lastMsg;
+				console.log(new Date(), 'new message ignored -> ', title, lastMsg);
+				return goAgain(() => { start(chats, cnt + 1) }, 0.1);
+			}
+
+
+			console.log(new Date(), 'new message to process, uhull -> ', title, lastMsg);
+
+			sendMessage(null, sendText.trim(), () => {
+				goAgain(() => { start(chats, cnt + 1) }, 0.1);
+			});
+	
+/*
 		if (!processLastMsgOnChat){
 			selectChat(chat, () => {
 				sendMessage(chat, sendText.trim(), () => {
@@ -399,7 +412,7 @@
 				goAgain(() => { start(chats, cnt + 1) }, 0.1);
 			});
 		}
-		
+*/
 	}
 	start();
 })()
