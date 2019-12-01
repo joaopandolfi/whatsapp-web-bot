@@ -7,39 +7,148 @@
 	var elementConfig = {
 		"chats": [0, 0, 5, 2, 0, 3, 0, 0, 0],
 		"chat_icons": [0, 0, 1, 1, 1, 0],
-		"chat_title": [0, 0, 1, 0, 0, 0],
+		"chat_title": [0, 0, 1, 0, 0, 0, 0],
 		"chat_lastmsg": [0, 0, 1, 1, 0, 0],
 		"chat_active": [0, 0],
-		"selected_title": [1, 0, 5, 3, 0, 1, 1, 0, 0, 0]
+		"selected_title": [0, 0, 5, 3, 0, 1, 1, 0, 0, 0],
+		"select_clip": [0, 0, 5, 3, 0, 1, 2, 0, 1, 0],
+		"select_image": [0, 0, 5, 3, 0, 1, 2, 0, 1, 1, 0, 0, 0, 0],
+		"select_file": [0, 0, 5, 3, 0, 1, 2, 0, 1, 1, 0, 0, 0, 0]
 	};
-
-	const jokeList = [
-		`
-		Husband and Wife had a Fight.
-		Wife called Mom : He fought with me again,
-		I am coming to you.
-		Mom : No beta, he must pay for his mistake,
-		I am comming to stay with U!`,
-
-		`
-		Husband: Darling, years ago u had a figure like Coke bottle.
-		Wife: Yes darling I still do, only difference is earlier it was 300ml now it's 1.5 ltr.`,
-
-		`
-		God created the earth, 
-		God created the woods, 
-		God created you too, 
-		But then, even God makes mistakes sometimes!`,
-
-		`
-		What is a difference between a Kiss, a Car and a Monkey? 
-		A kiss is so dear, a car is too dear and a monkey is U dear.`
-	]
-
 
 	//
 	// FUNCTIONS
 	//
+
+	function BOT(title, currMsg){
+		if (__memory[title].pedindo){
+
+			if(!__memory[title].tradicional && !__memory[title].especial){
+				if(currMsg.indexOf("especial")> -1){
+					__memory[title].tipo =  "especial"
+					__memory[title].tradicional = false
+					__memory[title].especial = true
+					__memory[title].atual = "pedido_g"
+					__memory[title].fluxo.push(__memory[title].atual)
+
+					sendText = __tree.pedido_g.msg.replace("{tipopedido}",__memory[title].tipo)
+				}
+				else if(currMsg.indexOf("tradicional")> -1){
+					__memory[title].tipo =  "tradicional"
+					__memory[title].tradicional = true
+					__memory[title].especial = false
+					__memory[title].atual = "pedido_g"
+					__memory[title].fluxo.push(__memory[title].atual)
+					
+					sendText = __tree.pedido_g.msg.replace("{tipopedido}",__memory[title].tipo)
+				}
+			}else if(__memory[title].atual == "pedido_g"){
+				if(currMsg.indexOf("1")> -1){
+					__memory[title].atual = "pedido_g_1"
+					__memory[title].fluxo.push(__memory[title].atual)
+					sendText = __tree.pedido_g_1.msg.replace("{tipopedido}",__memory[title].tipo)
+					sendText += __tree["sabor_"+__memory[title].tipo].msg
+				}
+				else if(currMsg.indexOf("2")> -1){
+					__memory[title].atual = "pedido_g_2"
+					__memory[title].fluxo.push(__memory[title].atual)
+					sendText = __tree.pedido_g_2.msg.replace("{tipopedido}",__memory[title].tipo)
+					sendText += __tree["sabor_"+__memory[title].tipo].msg
+				}
+			}else if(__memory[title].atual == "pedido_g_1"){
+				value = parseInt(currMsg) -1
+				sabor = __tree["sabor_"+__memory[title].tipo]
+				if(value < sabor.size){
+					__memory[title].atual = "confirma_pedido" 
+					__memory[title].fluxo.push(__memory[title].atual)
+					__memory[title].sabores.push(sabor.values[value])
+
+					sendText = __tree.confirma_pedido.msg.replace("{pedido}",`Pedido ${__memory[title].tipo}, Sabor ${sabor.values[value]}`)
+				}else{
+					sendText = "Codigo invalido"
+					// Codigo invalido
+				}
+			}else if(__memory[title].atual == "pedido_g_2"){
+				// COLOCAR
+				value = parseInt(currMsg) -1
+				sabor = __tree["sabor_"+__memory[title].tipo]
+				if(value < sabor.size){
+					__memory[title].atual = "pedido_g_2_2" 
+					__memory[title].fluxo.push(__memory[title].atual)
+					__memory[title].sabores.push(sabor.values[value])
+
+					sendText = __tree.pedido_g_2_2.msg.replace("{tipopedido}",__memory[title].tipo).replace("{sabor1}",sabor.values[value])
+				}else{
+					// Codigo invalido
+					sendText = "Código invalido"
+				}
+			}
+			else if(__memory[title].atual == "pedido_g_2_2"){
+				// COLOCAR
+				value = parseInt(currMsg) -1
+				sabor = __tree["sabor_"+__memory[title].tipo]
+				if(value < sabor.size){
+					__memory[title].atual = "confirma_pedido" 
+					__memory[title].fluxo.push(__memory[title].atual)
+					__memory[title].sabores.push(sabor.values[value])
+
+					sendText = __tree.confirma_pedido.msg.replace("{pedido}",`Pedido ${__memory[title].tipo}, Sabores: ${__memory[title].sabores[0]} e ${__memory[title].sabores[1]}`)
+				}else{
+					// Codigo invalido
+					sendText = "Código invalido"
+				}
+			}
+			else if(__memory[title].atual == "confirma_pedido"){
+				if(currMsg.indexOf("1")> -1){
+					__memory[title].atual = "pedido_confirmado" 
+					__memory[title].fluxo.push(__memory[title].atual)
+					__memory[title].pedindo = false
+
+					__pedidos.push(Object.assign({},__memory[title]))
+					__memory[title] = undefined
+					sendText = __tree.pedido_confirmado.msg
+				}else if(currMsg.indexOf("2")> -1){
+					//Cancelar pedido
+					__memory[title].atual = "pedido_cancelado" 
+					__memory[title].fluxo.push(__memory[title].atual)
+					__memory[title].pedindo = false
+
+					__cancelados.push(Object.assign({},__memory[title]))
+					__memory[title] = undefined
+					sendText = __tree.pedido_cancelado.msg
+				}
+			}
+		}else{
+			if(currMsg.indexOf("pedido")> -1){
+				__memory[title].pedindo = true
+				__memory[title].atual = "pedindo"
+				__memory[title].fluxo.push("pedindo")
+
+				sendText = __tree.pedido.msg
+			}
+			else if(currMsg.indexOf("especiais")> -1){
+				sendText = __tree.sabor_especial.msg
+			}
+			else if(currMsg.indexOf("tradicionais")> -1){
+				sendText = __tree.sabor_tradicional.msg
+			}else {
+				sendText = __tree.default.msg
+			}
+		}
+
+		return sendText
+	}
+
+	function simulateMouseClick(targetNode) {
+		function triggerMouseEvent(targetNode, eventType) {
+			var clickEvent = document.createEvent('MouseEvents');
+			clickEvent.initEvent(eventType, true, true);
+			targetNode.dispatchEvent(clickEvent);
+		}
+		["mouseover", "mousedown", "mouseup", "click"].forEach(function(eventType) { 
+			triggerMouseEvent(targetNode, eventType);
+		});
+	}
 
 	// Get random value between a range
 	function rand(high, low = 0) {
@@ -79,7 +188,7 @@
 	}
 	
 	function getLastMsg(){
-		var messages = document.querySelectorAll('.msg');
+		var messages = document.querySelectorAll('div.FTBzM');
 		var pos = messages.length-1;
 		
 		while (messages[pos] && (messages[pos].classList.contains('msg-system') || messages[pos].querySelector('.message-out'))){
@@ -89,6 +198,17 @@
 			}
 		}
 		if (messages[pos] && messages[pos].querySelector('.selectable-text')){
+			return messages[pos].querySelector('.selectable-text').innerText;
+		} else {
+			return false;
+		}
+	}
+
+	function getTypeLastMsg(){
+		var messages = document.querySelectorAll('div.FTBzM');
+		var pos = messages.length-1;
+		
+		if (messages[pos] && (messages[pos].classList.contains('msg-system') || messages[pos].classList.contains('message-in'))){
 			return messages[pos].querySelector('.selectable-text').innerText;
 		} else {
 			return false;
@@ -122,7 +242,7 @@
 	}
 	
 	function didYouSendLastMsg(){
-		var messages = document.querySelectorAll('.msg');
+		var messages = document.querySelectorAll('div.FTBzM');
 		if (messages.length <= 0){
 			return false;
 		}
@@ -209,16 +329,18 @@
 		const chats = _chats || getUnreadChats();
 		const chat = chats[cnt];
 		
+		var imSendLastMessage = didYouSendLastMsg();
 		var processLastMsgOnChat = false;
 		var lastMsg;
 		
 		if (!lastMessageOnChat){
 			if (false === (lastMessageOnChat = getLastMsg())){
+				console.log(lastMessageOnChat)
 				lastMessageOnChat = true; //to prevent the first "if" to go true everytime
 			} else {
 				lastMsg = lastMessageOnChat;
 			}
-		} else if (lastMessageOnChat != getLastMsg() && getLastMsg() !== false && !didYouSendLastMsg()){
+		} else if (lastMessageOnChat != getLastMsg() && getLastMsg() !== false && !imSendLastMessage){
 			lastMessageOnChat = lastMsg = getLastMsg();
 			processLastMsgOnChat = true;
 		}
@@ -245,23 +367,16 @@
 		// what to answer back?
 		let sendText
 
-		if (lastMsg.toUpperCase().indexOf('@HELP') > -1){
-			sendText = `
-				Cool ${title}! Some commands that you can send me:
-
-				1. *@TIME*
-				2. *@JOKE*`
+		let currMsg =getTypeLastMsg() //lastMsg.toLowerCase()
+		console.log(__memory[title])
+		console.log(imSendLastMessage)
+		console.log(currMsg)
+		if(__memory[title] == undefined){
+			__memory[title] = Object.assign({},__memory["example"]);
 		}
-
-		if (lastMsg.toUpperCase().indexOf('@TIME') > -1){
-			sendText = `
-				Don't you have a clock, dude?
-
-				*${new Date()}*`
-		}
-
-		if (lastMsg.toUpperCase().indexOf('@JOKE') > -1){
-			sendText = jokeList[rand(jokeList.length - 1)];
+		
+		if(currMsg){
+			sendText = BOT(title,currMsg)
 		}
 		
 		// that's sad, there's not to send back...
@@ -273,15 +388,6 @@
 
 		console.log(new Date(), 'new message to process, uhull -> ', title, lastMsg);
 
-
-/*
-		// select chat and send message
-		var send = { sendMessage(!processLastMsgOnChat ? chat : null, sendText.trim(), () => {
-				goAgain(() => { start(chats, cnt + 1) }, 0.1);
-			});
-		};
-		selectChat(chat, send);
-*/
 		if (!processLastMsgOnChat){
 			selectChat(chat, () => {
 				sendMessage(chat, sendText.trim(), () => {
@@ -293,6 +399,7 @@
 				goAgain(() => { start(chats, cnt + 1) }, 0.1);
 			});
 		}
+		
 	}
 	start();
 })()
