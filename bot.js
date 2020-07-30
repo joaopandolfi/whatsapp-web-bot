@@ -189,7 +189,7 @@
 	}
 	
 	function getLastMsg(){
-		var messages = document.querySelectorAll('div.FTBzM');
+		var messages = document.querySelectorAll('div._2hqOq');
 		var pos = messages.length-1;
 		
 		while (messages[pos] && (messages[pos].classList.contains('msg-system') || messages[pos].querySelector('.message-out'))){
@@ -206,7 +206,7 @@
 	}
 
 	function getTypeLastMsg(){
-		var messages = document.querySelectorAll('div.FTBzM');
+		var messages = document.querySelectorAll('div._2hqOq');
 		var pos = messages.length-1;
 		
 		if (messages[pos] && (messages[pos].classList.contains('msg-system') || messages[pos].classList.contains('message-in'))){
@@ -306,7 +306,7 @@
 		}
 		ignoreLastMsg[title] = message;
 		
-		messageBox = document.querySelectorAll("[contenteditable='true']")[0];
+		messageBox = document.querySelectorAll("[contenteditable='true']")[1];
 
 		//add text into input field
 		messageBox.innerHTML = message.replace(/  /gm,'');
@@ -329,9 +329,9 @@
 		// get next unread chat
 		const chats = _chats || getUnreadChats();
 		const chat = chats[cnt];
-		
-		var imSendLastMessage = didYouSendLastMsg();
 		var processLastMsgOnChat = false;
+		var imSendLastMessage = didYouSendLastMsg();
+		
 		var lastMsg;
 		
 		if (!lastMessageOnChat){
@@ -366,6 +366,7 @@
 		}
 
 		if (!processLastMsgOnChat){
+			//processLastMsgOnChat = true;
 			return selectChat(chat, () => {
 				goAgain(start, 0.1);
 			})
