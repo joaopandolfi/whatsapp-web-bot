@@ -102,11 +102,8 @@
 				if(currMsg.indexOf("1")> -1){
 					__memory[title].atual = "pedido_confirmado" 
 					__memory[title].fluxo.push(__memory[title].atual)
-					__memory[title].pedindo = false
-
-					__pedidos.push(Object.assign({},__memory[title]))
-					__memory[title] = undefined
-					sendText = __tree.pedido_confirmado.msg
+					
+					sendText = __tree.endereco.msg
 				}else if(currMsg.indexOf("2")> -1){
 					//Cancelar pedido
 					__memory[title].atual = "pedido_cancelado" 
@@ -117,7 +114,16 @@
 					__memory[title] = undefined
 					sendText = __tree.pedido_cancelado.msg
 				}
-			}
+            }
+            else if(__memory[title].atual == "pedido_confirmado"){
+                    __pedidos.push(Object.assign({},__memory[title]))
+                    __memory[title].pedindo = false
+                    __memory[title].endereco = currMsg
+                    __memory[title] = undefined
+                    
+                    
+                    sendText = __tree.pedido_confirmado.msg
+            }
 		}else{
 			if(currMsg.indexOf("pedido")> -1){
 				__memory[title].pedindo = true
